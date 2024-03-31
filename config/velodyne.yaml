@@ -5,6 +5,10 @@ common:
     time_offset_lidar_to_imu: 0.0 # Time offset between lidar and IMU calibrated by other algorithms, e.g. LI-Init (can be found in README).
                                   # This param will take effect no matter what time_sync_en is. So if the time offset is not known exactly, please set as 0.0
 
+# Note: The extrinsic parameters in FAST-LIO is defined as the LiDAR's pose (position and rotation matrix) in IMU body frame (i.e. the IMU is the base frame). -> T_b_l 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# UrbanLoco-HK-Data20190117 
+# rosbag play command: rosbag play test2.bag -r 1 -k /velodyne_points_0:=/velodyne_points --clock --pause 
 preprocess:
     lidar_type: 2                # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR, 
     scan_line: 32
@@ -20,18 +24,63 @@ mapping:
     fov_degree:    180
     det_range:     100.0
     extrinsic_est_en:  false      # true: enable the online estimation of IMU-LiDAR extrinsic,
-    extrinsic_T: [ 0, 0, 0.28]
-    extrinsic_R: [ 1, 0, 0, 
-                   0, 1, 0, 
-                   0, 0, 1]
+    extrinsic_T: [0, 0, -0.28] 
+    extrinsic_R: [ 2.67949e-08,           -1,  0, 
+                             1,  2.67949e-08,  0, 
+                         0,                0,  1] 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# UrbanLoco-CARussianHill20190828173350 
+# rosbag play command: rosbag play CA-20190828173350_blur_align.bag -r 1 -k /rslidar_points:=/velodyne_points /imu_raw:=/imu/data --clock --pause 
+# preprocess:
+#     lidar_type: 2                # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR, 
+#     scan_line: 32
+#     scan_rate: 10                # only need to be set for velodyne, unit: Hz,
+#     timestamp_unit: 2            # the unit of time/t field in the PointCloud2 rostopic: 0-second, 1-milisecond, 2-microsecond, 3-nanosecond.
+#     blind: 2
+
+# mapping:
+#     acc_cov: 0.1
+#     gyr_cov: 0.1
+#     b_acc_cov: 0.0001
+#     b_gyr_cov: 0.0001
+#     fov_degree:    180
+#     det_range:     100.0
+#     extrinsic_est_en:  false      # true: enable the online estimation of IMU-LiDAR extrinsic,
+#     extrinsic_T: [ 0, 0, -0.0762]
+#     extrinsic_R: [ 0, 1, 0, 
+#                   -1, 0, 0, 
+#                    0, 0, 1] 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+# S3E-Alpha  
+# rosbag play command: rosbag play S3E_College.bag -r 1 -k /Alpha/velodyne_points:=/velodyne_points /Alpha/imu/data:=/imu/data --clock --pause 
+# preprocess:
+#     lidar_type: 2                # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR, 
+#     scan_line: 16
+#     scan_rate: 10                # only need to be set for velodyne, unit: Hz,
+#     timestamp_unit: 2            # the unit of time/t field in the PointCloud2 rostopic: 0-second, 1-milisecond, 2-microsecond, 3-nanosecond.
+#     blind: 2
+
+# mapping:
+#     acc_cov: 0.1
+#     gyr_cov: 0.1
+#     b_acc_cov: 0.0001
+#     b_gyr_cov: 0.0001
+#     fov_degree:    180
+#     det_range:     100.0
+#     extrinsic_est_en:  false      # true: enable the online estimation of IMU-LiDAR extrinsic,
+#     extrinsic_T: [-0.0430, 0.1455, -0.0106] 
+#     extrinsic_R: [  0.9995,  0.0316,  -0.0094, 
+#                    -0.0316,  0.9995,   0.0009, 
+#                     0.0094, -0.0006,   1.0000] 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 publish:
-    path_en:  false
+    path_en:  true
     scan_publish_en:  true       # false: close all the point cloud output
     dense_publish_en: true       # false: low down the points number in a global-frame point clouds scan.
-    scan_bodyframe_pub_en: true  # true: output the point cloud scans in IMU-body-frame
+    scan_bodyframe_pub_en: true  # true: output the point cloud scans in IMU-body-frame 
 
 pcd_save:
-    pcd_save_en: true
+    pcd_save_en: false
     interval: -1                 # how many LiDAR frames saved in each pcd file; 
                                  # -1 : all frames will be saved in ONE pcd file, may lead to memory crash when having too much frames.

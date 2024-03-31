@@ -297,7 +297,15 @@ void Preprocess::velodyne_handler(const sensor_msgs::PointCloud2::ConstPtr &msg)
     std::vector<float> time_last(N_SCANS, 0.0);  // last offset time
     /*****************************************************************/
 
+    // std::cout << "stamp: " << pl_orig.points[plsize - 5].time << std::endl; // tt 
+    /* Si: set stamp of point to zero (make no sense) */ 
+    // for (int i = 0; i < plsize; i++)
+    // {
+    //   pl_orig.points[i].time = 0; 
+    // }
+
     if (pl_orig.points[plsize - 1].time > 0)
+    // if (0) // tt for S3E dataset 
     {
       given_offset_time = true;
     }
@@ -338,6 +346,7 @@ void Preprocess::velodyne_handler(const sensor_msgs::PointCloud2::ConstPtr &msg)
         added_pt.z = pl_orig.points[i].z;
         added_pt.intensity = pl_orig.points[i].intensity;
         added_pt.curvature = pl_orig.points[i].time * time_unit_scale; // units: ms
+        // std::cout << "added_pt.curvature: " << added_pt.curvature << std::endl; // tt 
 
         if (!given_offset_time)
         {

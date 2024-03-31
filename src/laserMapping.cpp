@@ -139,6 +139,8 @@ geometry_msgs::PoseStamped msg_body_pose;
 shared_ptr<Preprocess> p_pre(new Preprocess());
 shared_ptr<ImuProcess> p_imu(new ImuProcess());
 
+int odometryNum = 0; // Si 
+
 void SigHandle(int sig)
 {
     flg_exit = true;
@@ -278,6 +280,12 @@ void lasermap_fov_segment()
 void standard_pcl_cbk(const sensor_msgs::PointCloud2::ConstPtr &msg) 
 {
     mtx_buffer.lock();
+
+    /* Si: test the unit of each point timestamp */
+    // PointCloudXYZI::Ptr ttPC(new PointCloudXYZI()); 
+    // pcl::fromROSMsg(*msg, *ttPC); 
+    // std::cout << "first point stamp of each frame: " << ttPC->points.data()[3] << std::endl; 
+
     scan_count ++;
     double preprocess_start_time = omp_get_wtime();
     if (msg->header.stamp.toSec() < last_timestamp_lidar)
@@ -581,13 +589,22 @@ void set_posestamp(T & out)
     
 }
 
+// TODO: save the pose into custom and evo format  
 void publish_odometry(const ros::Publisher & pubOdomAftMapped)
 {
     odomAftMapped.header.frame_id = "camera_init";
     odomAftMapped.child_frame_id = "body";
     odomAftMapped.header.stamp = ros::Time().fromSec(lidar_end_time);// ros::Time().fromSec(lidar_end_time);
     set_posestamp(odomAftMapped.pose);
-    pubOdomAftMapped.publish(odomAftMapped);
+    pubOdomAftMapped.publish(odomAftMapped); 
+
+    /* Si: printf and save estimated poses */
+    odometryNum++; 
+    std::cout << odometryNum << "-th estimated pose: \n" 
+                             << "x: " <<odomAftMapped.pose.pose.position.x << " "
+                             << "y: " <<odomAftMapped.pose.pose.position.y << " "
+                             << "z: " <<odomAftMapped.pose.pose.position.z << std::endl; 
+
     auto P = kf.get_P();
     for (int i = 0; i < 6; i ++)
     {
